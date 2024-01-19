@@ -44,7 +44,7 @@ float checkpoint=0;
 float meh;
 int diag=0;
 float corners=0;
-int wave=int(random(10,20));
+
 int lightning = 15;
 int ning = 0;
 int xx = 0;
@@ -64,44 +64,94 @@ int crunch=0;
 int form=int(random(4,10));
 
 float petalCount = 0;
-int granularity = 64;
+int granularity = 1;
+float wave = 0;
 void setup() {
   //background(0);
   size(1280,720);
   //background(255,244,244);
  // img = loadImage("Texture1.jpg");
- colorMode(HSB);
+ colorMode(RGB);
   
 }
 
 void draw() {
  // save("ThousandEyedWall.png");
-  delay=delay+.01;
-  background(0,0,0);
-  translate(width/2,height/2);
-  strokeWeight(1);
+  wave = wave + .00001;
+  delay=delay+.1;
+  background(0);
+  //translate(width/2,height/2);
+  strokeWeight(.11);
   noFill();
   stroke(255,255,255,255);
 
  noFill();
- for (int j =-width/2;j<=width/2;j = j+granularity){
-   for (int k = -height/2;k<=height/2; k = k+granularity){
-     petalCount = (abs(j)+abs(k))%15;
-     float colorCalc = (abs(j)+abs(k))%255;
-     stroke(colorCalc, 255, 255);
-     for (float i = 0 + delay; i <= LINE_O + delay; i = i + 5){
-      theta = i*(360/LINE_O);
-      phase=((PI)/LINE_O);
-      meh = (30)*sin(petalCount*theta)*cos(phase);
-     osx=(meh)*cos(theta)+j;
-     osy=(meh)*sin(theta)+k;
-     stroke(colorCalc, 255, 255);
-     ellipse(osx,osy,1,1); 
-     stroke(0,255,255);
-     ellipse(osx,osy,.1,.1);
-     
-   }
-   
+ 
+ for (int j =0;j<=width;j = j+granularity){
+   for (int k = 0;k<=height; k = k+granularity){
+    PVector uv = new PVector(j* 2.0 - (width*height) / height, k * 2.0 - (width*height) / height);
+    PVector uv0 = uv;
+    float[] finalColor = new float[3];
+    
+    for(int i = 0; i<3; i++){
+      finalColor[i] = 0;
+    } 
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        uv = new PVector((uv.x * 1.5)-floor(uv.x*1.5) - 0.5,(uv.y * 1.5)-floor(uv.y*1.5) - 0.5);
+
+        float d = mag(uv.x,uv.y) * exp(-mag(uv0.x,uv0.y));
+
+        float[] col = new float[3];
+        col = palette(mag(uv0.x,uv0.y) + i*.4 + delay*.4);
+
+        d = sin(d*8. + delay)/8.;
+        d = abs(d);
+        d = pow(0.01 / d, 1.2);
+        
+        finalColor[0] += (col[0] * d);
+        finalColor[1] += (col[1] * d);
+        finalColor[2] += (col[2] * d);
+        
+    }
+    for(int i = 0; i<3; i++){
+      finalColor[i] = map(finalColor[i],0,1,0,255);
+    } 
+    fill(finalColor[0],finalColor[1],finalColor[2],255);
+    
+    //print(finalColor[0]+ " ");
+    //fill(255);
+    noStroke();
+    ellipse(j,k,1,1);    
+    //fragColor = vec4(finalColor, 1.0);
 }
+ }
 }
+
+float[] palette( float t ) {
+    float[] a = new float[3];
+    a[0] = 0.5;  // Assign value to first element in the array
+    a[1] = 0.5; // Assign value to second element in the array
+    a[2] = 0.5;
+    
+    float[] b = new float[3];
+    b[0] = 0.5;  // Assign value to first element in the array
+    b[1] = 0.5; // Assign value to second element in the array
+    b[2] = 0.5;
+    
+    float[] c = new float[3];
+    c[0] = 1;  // Assign value to first element in the array
+    c[1] = 1; // Assign value to second element in the array
+    c[2] = 1;
+    
+    float[] d = new float[3];
+    d[0] = 0.263;  // Assign value to first element in the array
+    d[1] = 0.416; // Assign value to second element in the array
+    d[2] = 0.557;
+    float [] temp = new float[3];
+    for(int i = 0; i<3; i++){
+      temp[i] = a[i]+b[i]*cos(6.28318  * ((c[i] * t) +d[i]));
+     // temp[i] = temp[i]*cos(6.28318  * ((c[i] * t) +d[i]));
+    } 
+    return temp;
 }
